@@ -221,6 +221,7 @@ class MavrosOffboardPosctlTest():
             if self.evader_captured(15) == 1:
                 self.pos0.pose.position.x = self.evader.pose.position.x -75
                 self.pos0.pose.position.y = self.evader.pose.position.y -27.5
+                self.pos0.pose.position.z = 15
                 if not self.voronoi_run_flag:
                     self.voronoi_run_flag = True
                     pid = subprocess.Popen([sys.executable, "voronoi.py"]) # Call subprocess
@@ -229,6 +230,7 @@ class MavrosOffboardPosctlTest():
             elif self.evader_captured(15) == 2:
                 self.pos1.pose.position.x = self.evader.pose.position.x -75
                 self.pos1.pose.position.y = self.evader.pose.position.y -52.5
+                self.pos1.pose.position.z = 15
                 if not self.voronoi_run_flag:
                     self.voronoi_run_flag = True
                     pid = subprocess.Popen([sys.executable, "voronoi.py"]) # Call subprocess
@@ -236,6 +238,7 @@ class MavrosOffboardPosctlTest():
             elif self.evader_captured(15) == 3:
                 self.pos2.pose.position.x = self.evader.pose.position.x -75
                 self.pos2.pose.position.y = self.evader.pose.position.y -77.5
+                self.pos2.pose.position.z = 15
                 if not self.voronoi_run_flag:
                     self.voronoi_run_flag = True
                     pid = subprocess.Popen([sys.executable, "voronoi.py"]) # Call subprocess
@@ -294,9 +297,9 @@ class MavrosOffboardPosctlTest():
         self.uav2.set_arm(True, 5)
 
         rospy.loginfo("run mission")
-        positions0 = ((0, 0, -0.5), (0, 0, 20), (-75, 0, 20), (-75, 0, 0))
-        positions1 = ((0, 0, -0.3), (0, 0, 20), (-75, 0, 20), (-75, 0, 0))
-        positions2 = ((0, 0, -0.1), (0, 0, 20), (-75, 0, 20), (-75, 0, 0))
+        positions0 = ((0, 0, -0.5), (0, 0, 20), (-75, 0, 26), (-75, 0, 0))
+        positions1 = ((0, 0, -0.3), (0, 0, 20), (-75, 0, 26), (-75, 0, 0))
+        positions2 = ((0, 0, -0.1), (0, 0, 20), (-75, 0, 26), (-75, 0, 0))
 
         for i in xrange(len(positions0)):
             self.reach_position(positions0[i], positions1[i],positions2[i], 30)

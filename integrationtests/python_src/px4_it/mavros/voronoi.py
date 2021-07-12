@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*-coding: UTF-8-*-
 
 import numpy as np
@@ -12,7 +12,11 @@ import rospy
 import tf
 import math
 from std_msgs.msg import Float64MultiArray
+<<<<<<< HEAD
 
+=======
+from mpl_toolkits.mplot3d import axes3d
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
 
 def get_theta(v):
     if v[0] > 0 and v[1] >= 0:
@@ -48,11 +52,19 @@ def plot_poly(vertices):
     for i in range(n_v - 1):
         p1 = vertices[i]
         p2 = vertices[i + 1]
+<<<<<<< HEAD
         plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r-', linewidth=2.0)
 
     p1 = vertices[-1]
     p2 = vertices[0]
     plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r-', linewidth=2.0)
+=======
+        plt.plot([p1[1], p2[1]], [-p1[0],-p2[0]], 'r-', linewidth=2.0)
+
+    p1 = vertices[-1]
+    p2 = vertices[0]
+    plt.plot([p1[1], p2[1]], [-p1[0], -p2[0]], 'r-', linewidth=2.0)
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
 
 
 class Edge:
@@ -116,10 +128,17 @@ class Controller:
         self.yaw = [0., 0., 0., 0., 0.]
 
         # game environment, in rectangle, left bottom corner (minx, miny), right top corner (maxx, maxy)
+<<<<<<< HEAD
         self.minx = -20.
         self.miny = -20.
         self.maxx = 20.
         self.maxy = 20.
+=======
+        self.minx = 10.
+        self.miny = 20.
+        self.maxx = 75.
+        self.maxy = 80.
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
         self.e_cell_vertices = None
         self.e_cell = None
         self.pursuer_v = np.ones((4, 2))
@@ -142,6 +161,7 @@ class Controller:
             print(time.time() - time1)
 
     def _plot_env(self):
+<<<<<<< HEAD
         plt.plot([self.minx, self.minx], [self.miny, self.maxy], 'k-', linewidth=2.0)
         plt.plot([self.minx, self.maxx], [self.maxy, self.maxy], 'k-', linewidth=2.0)
         plt.plot([self.maxx, self.maxx], [self.miny, self.maxy], 'k-', linewidth=2.0)
@@ -152,13 +172,32 @@ class Controller:
         for p, act in zip(self.p_pos, self.pursuer_v):
             plt.plot(p[0], p[1], 'g^', markersize=6)
             plt.arrow(p[0], p[1], 4*act[0], 4*act[1])
+=======
+        plt.plot([self.miny, self.maxy], [-self.minx, -self.minx], 'k-', linewidth=2.0)
+        plt.plot([self.maxy, self.maxy], [-self.maxx, -self.minx], 'k-', linewidth=2.0)
+        plt.plot([self.miny, self.maxy], [-self.maxx, -self.maxx], 'k-', linewidth=2.0)
+        plt.plot([self.miny, self.miny], [-self.maxx, -self.minx], 'k-', linewidth=2.0)
+
+    def _plot_agent(self):
+        x = self.e_pos[1]
+        y = -self.e_pos[0]
+        plt.plot(x, y, 'rp', markersize=6)
+        for p, act in zip(self.p_pos, self.pursuer_v):
+            plt.plot(p[1], -p[0], 'g^', markersize=6)
+            plt.arrow(p[1], -p[0], 4*act[1], -4*act[0])
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
 
     def _plot(self):
         plt.axis('off')
         plt.axis('equal')
         offset = 20
+<<<<<<< HEAD
         plt.xlim([self.minx - offset, self.maxx + offset])
         plt.ylim([self.miny - offset, self.maxy + offset])
+=======
+        plt.xlim([self.miny - offset, self.maxy + offset])
+        plt.ylim([-self.maxx - offset, -self.minx + offset])
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
         self._plot_env()
         self._plot_agent()
         plot_poly(self.e_cell_vertices)
@@ -246,10 +285,14 @@ class Controller:
             #    temp.linear.x = 0.1
             #else:
             #    temp.linear.x = 0.8 - np.abs(temp.angular.z) / 0.8
+<<<<<<< HEAD
             temp.linear.x = 0.8 - np.abs(temp.angular.z) / 0.8
+=======
+            temp.linear.x = (1.0 - np.abs(temp.angular.z))*2
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
             temp.linear.y = 0.0
             temp.linear.z = 0.0
-            # rospy.loginfo("%f, %f", theta_r, theta_v[self.__index - 1])
+            # rospy.loginfo("velocity = {0}".format(temp.linear.x))
             # vel_msg.angular.z = 0.0
             temp.angular.y = 0.0
             temp.angular.x = 0.0
@@ -288,7 +331,11 @@ class Controller:
             plt.pause(0.001)
             plt.cla()
 
+<<<<<<< HEAD
 if __name__ == "__main__":
+=======
+if __name__ =="__main__":
+>>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
     rospy.init_node('controller')
     node = Controller()
     rospy.spin()
