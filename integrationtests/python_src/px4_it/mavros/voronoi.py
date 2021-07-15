@@ -12,11 +12,9 @@ import rospy
 import tf
 import math
 from std_msgs.msg import Float64MultiArray
-<<<<<<< HEAD
-
-=======
 from mpl_toolkits.mplot3d import axes3d
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
+
+rot = np.array([[0, -1], [1, 0]])
 
 def get_theta(v):
     if v[0] > 0 and v[1] >= 0:
@@ -46,25 +44,17 @@ def normalize(v):
     return v / norm
 
 
-def plot_poly(vertices):
+def plot_poly(vertices, style):
     n_v = len(vertices)
 
     for i in range(n_v - 1):
         p1 = vertices[i]
         p2 = vertices[i + 1]
-<<<<<<< HEAD
-        plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r-', linewidth=2.0)
+        plt.plot([p1[1], p2[1]], [-p1[0],-p2[0]], style, linewidth=2.0)
 
     p1 = vertices[-1]
     p2 = vertices[0]
-    plt.plot([p1[0], p2[0]], [p1[1], p2[1]], 'r-', linewidth=2.0)
-=======
-        plt.plot([p1[1], p2[1]], [-p1[0],-p2[0]], 'r-', linewidth=2.0)
-
-    p1 = vertices[-1]
-    p2 = vertices[0]
-    plt.plot([p1[1], p2[1]], [-p1[0], -p2[0]], 'r-', linewidth=2.0)
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
+    plt.plot([p1[1], p2[1]], [-p1[0], -p2[0]], style, linewidth=2.0)
 
 
 class Edge:
@@ -126,19 +116,13 @@ class Controller:
         self.e_pos = None
         self.p_pos = None
         self.yaw = [0., 0., 0., 0., 0.]
+        self.bound = np.array([[13, 90], [75, 91], [81, 8], [10, 16]])
 
         # game environment, in rectangle, left bottom corner (minx, miny), right top corner (maxx, maxy)
-<<<<<<< HEAD
-        self.minx = -20.
-        self.miny = -20.
-        self.maxx = 20.
-        self.maxy = 20.
-=======
-        self.minx = 10.
-        self.miny = 20.
-        self.maxx = 75.
-        self.maxy = 80.
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
+        self.minx = np.min(self.bound[:, 0])
+        self.maxx = np.max(self.bound[:, 0])
+        self.miny = np.min(self.bound[:, 1])
+        self.maxy = np.max(self.bound[:, 1])
         self.e_cell_vertices = None
         self.e_cell = None
         self.pursuer_v = np.ones((4, 2))
@@ -161,22 +145,7 @@ class Controller:
             print(time.time() - time1)
 
     def _plot_env(self):
-<<<<<<< HEAD
-        plt.plot([self.minx, self.minx], [self.miny, self.maxy], 'k-', linewidth=2.0)
-        plt.plot([self.minx, self.maxx], [self.maxy, self.maxy], 'k-', linewidth=2.0)
-        plt.plot([self.maxx, self.maxx], [self.miny, self.maxy], 'k-', linewidth=2.0)
-        plt.plot([self.minx, self.maxx], [self.miny, self.miny], 'k-', linewidth=2.0)
-
-    def _plot_agent(self):
-        plt.plot(self.e_pos[0], self.e_pos[1], 'rp', markersize=6)
-        for p, act in zip(self.p_pos, self.pursuer_v):
-            plt.plot(p[0], p[1], 'g^', markersize=6)
-            plt.arrow(p[0], p[1], 4*act[0], 4*act[1])
-=======
-        plt.plot([self.miny, self.maxy], [-self.minx, -self.minx], 'k-', linewidth=2.0)
-        plt.plot([self.maxy, self.maxy], [-self.maxx, -self.minx], 'k-', linewidth=2.0)
-        plt.plot([self.miny, self.maxy], [-self.maxx, -self.maxx], 'k-', linewidth=2.0)
-        plt.plot([self.miny, self.miny], [-self.maxx, -self.minx], 'k-', linewidth=2.0)
+        plot_poly(self.bound, 'k-')
 
     def _plot_agent(self):
         x = self.e_pos[1]
@@ -185,22 +154,16 @@ class Controller:
         for p, act in zip(self.p_pos, self.pursuer_v):
             plt.plot(p[1], -p[0], 'g^', markersize=6)
             plt.arrow(p[1], -p[0], 4*act[1], -4*act[0])
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
 
     def _plot(self):
         plt.axis('off')
         plt.axis('equal')
         offset = 20
-<<<<<<< HEAD
-        plt.xlim([self.minx - offset, self.maxx + offset])
-        plt.ylim([self.miny - offset, self.maxy + offset])
-=======
         plt.xlim([self.miny - offset, self.maxy + offset])
         plt.ylim([-self.maxx - offset, -self.minx + offset])
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
         self._plot_env()
         self._plot_agent()
-        plot_poly(self.e_cell_vertices)
+        plot_poly(self.e_cell_vertices, 'r-')
 
 
     def _bound_constr(self):
@@ -209,8 +172,17 @@ class Controller:
         the environment boundary
         :return: H, a numpy matrix
         """
-        H = np.array([[-1, 0, self.minx], [1, 0, -self.maxx],
-                      [0, -1, self.miny], [0, 1, -self.maxy]])
+        H = []
+        n_v = self.bound.shape[0]
+        for i in range(n_v):
+            p1 = self.bound[i]
+            p2 = self.bound[i+1] if i+1 < n_v else self.bound[0]
+            a = rot.dot(normalize(p2 - p1))
+            a = a.reshape((-1,))
+            b = - a.dot(p1)
+            H.append(np.hstack((a, b)))
+
+        H = np.array(H)
         return H
 
     def _get_constr(self, e, p):
@@ -285,11 +257,7 @@ class Controller:
             #    temp.linear.x = 0.1
             #else:
             #    temp.linear.x = 0.8 - np.abs(temp.angular.z) / 0.8
-<<<<<<< HEAD
-            temp.linear.x = 0.8 - np.abs(temp.angular.z) / 0.8
-=======
             temp.linear.x = (1.0 - np.abs(temp.angular.z))*2
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
             temp.linear.y = 0.0
             temp.linear.z = 0.0
             # rospy.loginfo("velocity = {0}".format(temp.linear.x))
@@ -331,11 +299,7 @@ class Controller:
             plt.pause(0.001)
             plt.cla()
 
-<<<<<<< HEAD
-if __name__ == "__main__":
-=======
 if __name__ =="__main__":
->>>>>>> 61e456ed4d9ec7378b61edfe3985e21f481aa6ab
     rospy.init_node('controller')
     node = Controller()
     rospy.spin()
