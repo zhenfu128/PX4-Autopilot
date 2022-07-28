@@ -33,7 +33,7 @@ Now you are ready to do the build:
 Install MAVLink:
 ```bash
 # We use the Kinetic reference for all ROS distros as it's not distro-specific and up to date
-$ rosinstall_generator --rosdistro kinetic mavlink | tee /tmp/mavros.rosinstall
+$ rosinstall_generator --rosdistro melodic mavlink | tee /tmp/mavros.rosinstall
 ```
 nstall MAVROS from source using either released or latest version:
 Released/stable
